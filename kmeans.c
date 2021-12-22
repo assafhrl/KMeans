@@ -17,7 +17,7 @@ point* malloc_point(int);
 void free_point(point*);
 point_list_node* malloc_point_list_node(int dim);
 void free_point_list_node(point_list_node*);
-int parse_parse_one_point(PyObject*, int, point*);
+int parse_one_point(PyObject*, int, point*);
 int parse_data_points(PyObject*, point_list_node**);
 int parse_centroids(PyObject* init_centroids, point*** centroids, int dim);
 double calculate_distance(point*, point*);
@@ -28,9 +28,10 @@ int calc_new_centroids(point_list_node*, int, point***);
 double calc_max_centroid_distance(point**, point**, int);
 void free_centroids(point**, int);
 int kmeans(point_list_node*, int, int, double, point***);
-int output_centroids(char*, point**, int);
+int output_centroids(PyObject*, point**, int);
 int add_centroid_to_list(PyObject*, point*, int);
 void free_resources(point**, point_list_node*, int);
+static PyObject* kmeans_to_py(PyObject*, PyObject*);
 
 
 static PyMethodDef KmeansMethods[] = {
@@ -73,12 +74,12 @@ static PyObject* kmeans_to_py(PyObject *self, PyObject *args)
     double eps;
     long max_iter;
     PyObject* data_points;
-    PyObject* centroids;
+    PyObject* init_centroids;
     int k;
     int result;
     PyObject* final_centroids;
 
-    if (!PyArg_ParseTuple(args, "OOdl", &data_points, &centroids, &eps, &max_iter)) {
+    if (!PyArg_ParseTuple(args, "OOdl", &data_points, &init_centroids, &eps, &max_iter)) {
         return NULL;
     }
 
@@ -90,7 +91,7 @@ static PyObject* kmeans_to_py(PyObject *self, PyObject *args)
         free_resources(centroids, points, k);
         return NULL;
     }
-    result = parse_centroids(points, k, &centroids);
+    result = parse_centroids(init_centroids, k, &centroids);
     if (result != SUCCESS) {
         free_resources(centroids, points, k);
         return NULL;
@@ -157,12 +158,12 @@ void free_point_list_node(point_list_node *points) {
     }
 }
 
-int parse_parse_one_point(PyObject* point_data, int dim, point* p) {
+int parse_one_point(PyObject* point_data, int dim, point* p) {
     int result;
     int i;
     PyObject *item;
     for(i = 0; i < dim ; i++) {
-        item = PyList_GetItem(float_list, i);
+        item = PyList_GetItem(point_data, i);
         if (!PyFloat_Check(item))
             return GENERAL_ERR;
         p->vector[i] = PyFloat_AsDouble(item);
@@ -182,7 +183,7 @@ int parse_data_points(PyObject* points, point_list_node** head){
     }
 
     PyObject* first_point = PyList_GetItem(points, 0);
-    int dim = PyObject_Length(first_point);
+    dim = PyObject_Length(first_point);
     *head = malloc_point_list_node(dim);
     if (*head == NULL) {
         return GENERAL_ERR;
@@ -190,7 +191,7 @@ int parse_data_points(PyObject* points, point_list_node** head){
     next = *head;
 
     for(i=0; i<points_number; i++) {
-        result = parse_parse_one_point(PyList_GetItem(points, i), dim, next->value);
+        result = parse_one_point(PyList_GetItem(points, i), dim, next->value);
         if (result != SUCCESS) {
             return result;
         }
@@ -219,7 +220,7 @@ int parse_centroids(PyObject* init_centroids, point*** centroids, int dim){
         return GENERAL_ERR;
     }
     for (i=0; i<k; i++) {
-        result = parse_parse_one_point(PyList_GetItem(init_centroids, i), dim, (*centroids)[i]);
+        result = parse_one_point(PyList_GetItem(init_centroids, i), dim, (*centroids)[i]);
         if (result != SUCCESS){
             return GENERAL_ERR;
         }
