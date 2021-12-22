@@ -118,6 +118,10 @@ def print_res(initial_centroids, centroids_c):
     print_initial_centroids_indices(initial_centroids)
     print_centroids(centroids_c)
 
+def exit_error():
+    print("An Error Has Occurred")
+    sys.exit(1)
+
 def main():
     k, max_iter, eps, filepath_1, filepath_2 = get_args()
     data_points = read_input(filepath_1, filepath_2)
@@ -125,7 +129,10 @@ def main():
     data_points_c = df_to_list_of_lists(data_points)
     initial_centroids_c = df_to_list_of_lists(initial_centroids)
     centroids_c = mykmeanssp.kmeans(data_points_c, initial_centroids_c, eps, max_iter)
+    if centroids_c is None:
+        exit_error()
     print_res(initial_centroids, centroids_c)
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()
