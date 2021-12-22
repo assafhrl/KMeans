@@ -24,8 +24,8 @@ def read_single_input(filepath):
 def read_input(filepath_1, filepath_2):
     df1 = read_single_input(filepath_1)
     df2 = read_single_input(filepath_2)
-    df = df1.merge(df2, how='inner', on="0")
-    column_names = {str(i): df.columns[i] for i in range(len(df.columns))}
+    df = df1.merge(df2, how='inner', on=0)
+    column_names = {df.columns[i]: i for i in range(len(df.columns))}
     df = df.rename(columns=column_names)
     return df
 
