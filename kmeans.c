@@ -19,7 +19,7 @@ point_list_node* malloc_point_list_node(int dim);
 void free_point_list_node(point_list_node*);
 int parse_one_point(PyObject*, int, point*);
 int parse_data_points(PyObject*, point_list_node**);
-int parse_centroids(PyObject* init_centroids, point*** centroids, int dim);
+int parse_centroids(PyObject*, point***, int);
 double calculate_distance(point*, point*);
 void find_nearest_centroid(point**, int, point*);
 void find_all_nearest_centroids(point**, int, point_list_node*);
@@ -83,7 +83,7 @@ static PyObject* kmeans_to_py(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    k = PyObject_Length(centroids);
+    k = PyObject_Length(init_centroids);
     point_list_node *points = NULL;
     point** centroids = NULL;
     result = parse_data_points(data_points, &points);
@@ -91,7 +91,7 @@ static PyObject* kmeans_to_py(PyObject *self, PyObject *args)
         free_resources(centroids, points, k);
         return NULL;
     }
-    result = parse_centroids(init_centroids, k, &centroids);
+    result = parse_centroids(init_centroids, &centroids, k);
     if (result != SUCCESS) {
         free_resources(centroids, points, k);
         return NULL;
