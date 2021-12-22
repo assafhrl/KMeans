@@ -87,31 +87,41 @@ static PyObject* kmeans_to_py(PyObject *self, PyObject *args)
     point_list_node *points = NULL;
     point** centroids = NULL;
 
-    result = parse_centroids(init_centroids, &centroids);
-    if (result != SUCCESS) {
-        free_resources(centroids, points, k);
-        return NULL;
-    }
-    
     result = parse_data_points(data_points, &points);
     if (result != SUCCESS) {
         free_resources(centroids, points, k);
-        return NULL;
+        Py_DECREF(data_points);
+        Py_DECREF(init_centroids);
+        Py_RETURN_NONE;
+    }
+
+    result = parse_centroids(init_centroids, &centroids);
+    if (result != SUCCESS) {
+        free_resources(centroids, points, k);
+        Py_DECREF(data_points);
+        Py_DECREF(init_centroids);
+        Py_RETURN_NONE;
     }
 
     result = kmeans(points, k, max_iter, eps, &centroids);
     if (result != SUCCESS) {
         free_resources(centroids, points, k);
-        return NULL;
+        Py_DECREF(data_points);
+        Py_DECREF(init_centroids);
+        Py_RETURN_NONE;
     }
     final_centroids = PyList_New(k);
     result = output_centroids(final_centroids, centroids, k);
     if (result != SUCCESS) {
         free_resources(centroids, points, k);
-        return NULL;
+        Py_DECREF(data_points);
+        Py_DECREF(init_centroids);
+        Py_RETURN_NONE;
     }
 
     free_resources(centroids, points, k);
+    Py_DECREF(data_points);
+    Py_DECREF(init_centroids);
     return Py_BuildValue("O", final_centroids);
 }
 
@@ -163,20 +173,15 @@ void free_point_list_node(point_list_node *points) {
 }
 
 int parse_one_point(PyObject* point_data, point* p) {
-    int result;
     int i;
     PyObject *item;
     int dim = PyObject_Length(point_data);
-    printf("here1\n");
     for(i = 0; i < dim ; i++) {
-        printf("here2\n");
         item = PyList_GetItem(point_data, i);
-        printf("here3\n");
         if (!PyFloat_Check(item))
             return GENERAL_ERR;
-        printf("here4\n");
         p->vector[i] = PyFloat_AsDouble(item);
-        printf("here5\n");
+        Py_DECREF(item);
     }
     return SUCCESS;
 }
@@ -202,17 +207,12 @@ int parse_data_points(PyObject* points, point_list_node** head){
     next = *head;
 
     for(i=0; i<points_number; i++) {
-
-        result = parse_one_point(PyList_GetItem(points, i), next->value);
-        /*
         my_point = PyList_GetItem(points, i);
         if (my_point == NULL){
             return GENERAL_ERR;
         }
-        Py_INCREF(my_point);
-        result = parse_one_point(my_point, dim, next->value);
+        result = parse_one_point(my_point, next->value);
         Py_DECREF(my_point);
-        */
         if (result != SUCCESS) {
             return result;
         }
@@ -231,7 +231,6 @@ int parse_data_points(PyObject* points, point_list_node** head){
 int parse_centroids(PyObject* init_centroids, point*** centroids){
     int result;
     int i;
-    int j;
     PyObject* my_centroid;
     int k = PyObject_Length(init_centroids);
     if (k <= 0) {
@@ -241,25 +240,21 @@ int parse_centroids(PyObject* init_centroids, point*** centroids){
     if (*centroids == NULL) {
         return GENERAL_ERR;
     }
+    Py_INCREF(init_centroids);
     for (i=0; i<k; i++) {
-
-        printf("iteration %d\n", i);
-        result = parse_one_point(PyList_GetItem(init_centroids, i), (*centroids)[i]);
-        /*
-        printf("iteration %d\n", i);
         my_centroid = PyList_GetItem(init_centroids, i);
         if (my_centroid == NULL){
             return GENERAL_ERR;
         }
         Py_INCREF(my_centroid);
-        result = parse_one_point(my_centroid, dim, (*centroids)[i]);
+        result = parse_one_point(my_centroid, (*centroids)[i]);
         Py_DECREF(my_centroid);
-        printf("parsed\n");
-        */
+        Py_DECREF(my_centroid);
         if (result != SUCCESS){
             return GENERAL_ERR;
         }
     }
+    Py_DECREF(init_centroids);
     return SUCCESS;
 }
 
