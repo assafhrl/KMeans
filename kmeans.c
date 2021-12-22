@@ -199,6 +199,9 @@ int parse_data_points(PyObject* points, point_list_node** head){
     }
 
     PyObject* first_point = PyList_GetItem(points, 0);
+    if (first_point == NULL) {
+        return GENERAL_ERR;
+    }
     dim = PyObject_Length(first_point);
     *head = malloc_point_list_node(dim);
     if (*head == NULL) {
@@ -231,6 +234,8 @@ int parse_data_points(PyObject* points, point_list_node** head){
 int parse_centroids(PyObject* init_centroids, point*** centroids){
     int result;
     int i;
+    int dim;
+
     PyObject* my_centroid;
     int k = PyObject_Length(init_centroids);
     if (k <= 0) {
@@ -240,8 +245,15 @@ int parse_centroids(PyObject* init_centroids, point*** centroids){
     if (*centroids == NULL) {
         return GENERAL_ERR;
     }
-    Py_INCREF(init_centroids);
+
+    PyObject* first_point = PyList_GetItem(init_centroids, 0);
+    if (first_point == NULL) {
+        return GENERAL_ERR;
+    }
+    dim = PyObject_Length(first_point);
+
     for (i=0; i<k; i++) {
+        (*centroids)[i] = malloc_point(dim);
         my_centroid = PyList_GetItem(init_centroids, i);
         if (my_centroid == NULL){
             return GENERAL_ERR;
@@ -254,7 +266,6 @@ int parse_centroids(PyObject* init_centroids, point*** centroids){
             return GENERAL_ERR;
         }
     }
-    Py_DECREF(init_centroids);
     return SUCCESS;
 }
 
