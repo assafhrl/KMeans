@@ -96,7 +96,7 @@ def get_args():
 def df_to_list_of_lists(df):
     l = []
     for i in range(len(df)):
-        sl = [df.iloc[i][j] for j in df.columns]
+        sl = [float(df.iloc[i][j]) for j in df.columns]
         l.append(sl)
     return l
 
