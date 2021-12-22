@@ -17,9 +17,9 @@ point* malloc_point(int);
 void free_point(point*);
 point_list_node* malloc_point_list_node(int dim);
 void free_point_list_node(point_list_node*);
-int parse_one_point(PyObject*, int, point*);
+int parse_one_point(PyObject*, point*);
 int parse_data_points(PyObject*, point_list_node**);
-int parse_centroids(PyObject*, point***, int);
+int parse_centroids(PyObject*, point***);
 double calculate_distance(point*, point*);
 void find_nearest_centroid(point**, int, point*);
 void find_all_nearest_centroids(point**, int, point_list_node*);
@@ -91,7 +91,7 @@ static PyObject* kmeans_to_py(PyObject *self, PyObject *args)
         free_resources(centroids, points, k);
         return NULL;
     }
-    result = parse_centroids(init_centroids, &centroids, k);
+    result = parse_centroids(init_centroids, &centroids);
     if (result != SUCCESS) {
         free_resources(centroids, points, k);
         return NULL;
@@ -158,10 +158,11 @@ void free_point_list_node(point_list_node *points) {
     }
 }
 
-int parse_one_point(PyObject* point_data, int dim, point* p) {
+int parse_one_point(PyObject* point_data, point* p) {
     int result;
     int i;
     PyObject *item;
+    int dim = PyObject_Length(point_data);
     for(i = 0; i < dim ; i++) {
         item = PyList_GetItem(point_data, i);
         if (!PyFloat_Check(item))
@@ -191,7 +192,7 @@ int parse_data_points(PyObject* points, point_list_node** head){
     next = *head;
 
     for(i=0; i<points_number; i++) {
-        result = parse_one_point(PyList_GetItem(points, i), dim, next->value);
+        result = parse_one_point(PyList_GetItem(points, i), next->value);
         if (result != SUCCESS) {
             return result;
         }
@@ -207,7 +208,7 @@ int parse_data_points(PyObject* points, point_list_node** head){
     return SUCCESS;
 }
 
-int parse_centroids(PyObject* init_centroids, point*** centroids, int dim){
+int parse_centroids(PyObject* init_centroids, point*** centroids){
     int result;
     int i;
     int j;
@@ -220,7 +221,7 @@ int parse_centroids(PyObject* init_centroids, point*** centroids, int dim){
         return GENERAL_ERR;
     }
     for (i=0; i<k; i++) {
-        result = parse_one_point(PyList_GetItem(init_centroids, i), dim, (*centroids)[i]);
+        result = parse_one_point(PyList_GetItem(init_centroids, i), (*centroids)[i]);
         if (result != SUCCESS){
             return GENERAL_ERR;
         }
