@@ -19,12 +19,12 @@ def is_valid_file(filepath):
     return False
 
 def read_single_input(filepath):
-    return pd.read_csv(filepath, header=None)
+    return pd.read_csv(filepath, header=None, index_col=0)
 
 def read_input(filepath_1, filepath_2):
     df1 = read_single_input(filepath_1)
     df2 = read_single_input(filepath_2)
-    df = df1.merge(df2, how='inner', on=0)
+    df = df1.join(df2, how='inner', rsuffix='_')
     column_names = {df.columns[i]: i for i in range(len(df.columns))}
     df = df.rename(columns=column_names)
     return df
