@@ -100,18 +100,18 @@ def df_to_list_of_lists(df):
         l.append(sl)
     return l
 
-def list_to_str(l):
-    l_str = [str(s) for s in l]
+def list_to_str(l, template):
+    l_str = [template.format(s) for s in l]
     return ",".join(l_str)
 
 def print_initial_centroids_indices(initial_centroids):
     indices = list(initial_centroids.index)
-    indices_str = list_to_str(indices)
+    indices_str = list_to_str(indices, "{:n}")
     print(indices_str)
 
 def print_centroids(centroids_c):
     for centroid_c in centroids_c:
-        centroid_str = list_to_str(centroid_c)
+        centroid_str = list_to_str(centroid_c, "{:.4f}")
         print(centroid_str)
 
 def print_res(initial_centroids, centroids_c):
