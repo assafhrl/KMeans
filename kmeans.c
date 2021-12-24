@@ -32,7 +32,6 @@ int output_centroids(PyObject*, point**, int);
 int add_centroid_to_list(PyObject*, point*, int);
 void free_resources(point**, point_list_node*, int);
 static PyObject* kmeans_to_py(PyObject*, PyObject*);
-void finish_program(point**, point_list_node*, int, PyObject*, PyObject*);
 
 
 static PyMethodDef KmeansMethods[] = {
@@ -90,33 +89,33 @@ static PyObject* kmeans_to_py(PyObject *self, PyObject *args)
 
     result = parse_data_points(data_points, &points);
     if (result != SUCCESS) {
-        finish_program(centroids, points, k, data_points, init_centroids);
+        free_resources(centroids, points, k);
         Py_RETURN_NONE;
     }
 
     result = parse_centroids(init_centroids, &centroids);
     if (result != SUCCESS) {
-        finish_program(centroids, points, k, data_points, init_centroids);
+        free_resources(centroids, points, k);
         Py_RETURN_NONE;
     }
 
     result = kmeans(points, k, max_iter, eps, &centroids);
     if (result != SUCCESS) {
-        finish_program(centroids, points, k, data_points, init_centroids);
+        free_resources(centroids, points, k);
         Py_RETURN_NONE;
     }
     final_centroids = PyList_New(k);
     if (final_centroids == NULL) {
-        finish_program(centroids, points, k, data_points, init_centroids);
+        free_resources(centroids, points, k);
         Py_RETURN_NONE;
     }
     result = output_centroids(final_centroids, centroids, k);
     if (result != SUCCESS) {
-        finish_program(centroids, points, k, data_points, init_centroids);
+        free_resources(centroids, points, k);
         Py_RETURN_NONE;
     }
 
-    finish_program(centroids, points, k, data_points, init_centroids);
+    free_resources(centroids, points, k);
     return Py_BuildValue("O", final_centroids);
 }
 
@@ -176,7 +175,6 @@ int parse_one_point(PyObject* point_data, point* p) {
         if (!PyFloat_Check(item))
             return GENERAL_ERR;
         p->vector[i] = PyFloat_AsDouble(item);
-        Py_DECREF(item);
     }
     return SUCCESS;
 }
@@ -210,7 +208,6 @@ int parse_data_points(PyObject* points, point_list_node** head){
             return GENERAL_ERR;
         }
         result = parse_one_point(my_point, next->value);
-        Py_DECREF(my_point);
         if (result != SUCCESS) {
             return result;
         }
@@ -254,7 +251,6 @@ int parse_centroids(PyObject* init_centroids, point*** centroids){
             return GENERAL_ERR;
         }
         result = parse_one_point(my_centroid, (*centroids)[i]);
-        Py_DECREF(my_centroid);
         if (result != SUCCESS){
             return GENERAL_ERR;
         }
@@ -430,10 +426,4 @@ int add_centroid_to_list(PyObject* centroids_list, point* centroid, int index) {
 void free_resources(point** centroids, point_list_node* points, int k) {
     free_centroids(centroids, k);
     free_point_list_node(points);
-}
-
-void finish_program(point** centroids, point_list_node* points, int k, PyObject* data_points, PyObject* centroids_list) {
-    free_resources(centroids, points, k);
-    Py_DECREF(data_points);
-    Py_DECREF(centroids_list);
 }
