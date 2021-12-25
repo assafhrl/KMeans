@@ -33,13 +33,10 @@ def read_input(filepath_1, filepath_2):
     return df
 
 def calculate_centroid_distance(centroid, data_points):
-    dist = pd.DataFrame(index=data_points.index)
-    dist['d'] = 0
-    dim = len(data_points.columns)
-    for i in range(dim):
-        dist[i] = (data_points[i] - centroid[i])
-        dist['d'] += dist[i]*dist[i]
-    return dist['d']
+    centroid_diff = data_points.sub(centroid, axis=1)
+    centroid_diff_square = centroid_diff*centroid_diff
+    diff = centroid_diff_square.sum(axis=1)
+    return diff
 
 def generate_first_initial_centroid(data_points):
     np.random.seed(0)
