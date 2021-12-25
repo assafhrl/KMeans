@@ -39,6 +39,7 @@ def calculate_centroid_distance(centroid, data_points):
     return dist['d']
 
 def generate_first_initial_centroid(data_points):
+    np.random.seed(0)
     centroid_index = np.random.choice(data_points.index)
     return data_points.loc[[centroid_index]]
 
