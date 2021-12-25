@@ -129,7 +129,7 @@ def main():
     initial_centroids = generate_initial_centroids(data_points, k)
     data_points_c = df_to_list_of_lists(data_points)
     initial_centroids_c = df_to_list_of_lists(initial_centroids)
-    centroids_c = mykmeanssp.kmeans(data_points_c, initial_centroids_c, eps, max_iter)
+    centroids_c = mykmeanssp.fit(data_points_c, initial_centroids_c, eps, max_iter)
     if centroids_c is None:
         exit_error()
     print_res(initial_centroids, centroids_c)

@@ -35,7 +35,7 @@ static PyObject* kmeans_to_py(PyObject*, PyObject*);
 
 
 static PyMethodDef KmeansMethods[] = {
-    {"kmeans",  (PyCFunction)kmeans_to_py, METH_VARARGS,
+    {"fit",  (PyCFunction)kmeans_to_py, METH_VARARGS,
      PyDoc_STR("Runs the kmeans algorithm.")},
     {NULL, NULL, 0, NULL}
 };
