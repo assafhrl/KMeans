@@ -19,7 +19,9 @@ def is_valid_file(filepath):
     return False
 
 def read_single_input(filepath):
-    return pd.read_csv(filepath, header=None, index_col=0)
+    df = pd.read_csv(filepath, header=None, index_col=0)
+    df.index = df.index.astype(int, copy=False)
+    return df
 
 def read_input(filepath_1, filepath_2):
     df1 = read_single_input(filepath_1)
@@ -27,6 +29,7 @@ def read_input(filepath_1, filepath_2):
     df = df1.join(df2, how='inner', rsuffix='_')
     column_names = {df.columns[i]: i for i in range(len(df.columns))}
     df = df.rename(columns=column_names)
+    df.index = pd.RangeIndex(0, len(df))
     return df
 
 def calculate_centroid_distance(centroid, data_points):
