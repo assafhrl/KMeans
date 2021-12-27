@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 import sys
-import mykmeanssp
+#import mykmeanssp
 
 ACCEPTED_INPUT_FILES_EXTENSIONS = ["txt", "csv"]
 DEFAULT_MAX_ITER = 300
@@ -26,10 +26,9 @@ def read_single_input(filepath):
 def read_input(filepath_1, filepath_2):
     df1 = read_single_input(filepath_1)
     df2 = read_single_input(filepath_2)
-    df = df1.join(df2, how='inner', rsuffix='_')
+    df = df1.join(df2, how='inner', rsuffix='_', sort=True)
     column_names = {df.columns[i]: i for i in range(len(df.columns))}
     df = df.rename(columns=column_names)
-    df.index = pd.RangeIndex(0, len(df))
     return df
 
 def calculate_centroid_distance(centroid, data_points):
@@ -129,10 +128,10 @@ def main():
     initial_centroids = generate_initial_centroids(data_points, k)
     data_points_c = df_to_list_of_lists(data_points)
     initial_centroids_c = df_to_list_of_lists(initial_centroids)
-    centroids_c = mykmeanssp.fit(data_points_c, initial_centroids_c, eps, max_iter)
-    if centroids_c is None:
-        exit_error()
-    print_res(initial_centroids, centroids_c)
+    #centroids_c = mykmeanssp.fit(data_points_c, initial_centroids_c, eps, max_iter)
+    #if centroids_c is None:
+    #    exit_error()
+    #print_res(initial_centroids, centroids_c)
     sys.exit(0)
 
 if __name__ == "__main__":
