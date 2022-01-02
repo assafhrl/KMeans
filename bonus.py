@@ -32,7 +32,7 @@ def main():
     data = df.to_numpy()
 
     ks = np.arange(MIN_K, MAX_K+1) # numpy array with the values of k to check
-    inertias = np.zeros(MAX_K) # numpy array to save the inertia of each k
+    inertias = np.zeros(MAX_K - MIN_K + 1) # numpy array to save the inertia of each k
 
     for k in ks:
         kmeans = KMeans(n_clusters=k, init='k-means++', random_state=0).fit(data)
