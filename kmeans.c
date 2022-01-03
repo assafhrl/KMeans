@@ -6,16 +6,16 @@
 #include <string.h>
 #include <stdlib.h>
 
-// structs
+/* structs */
 typedef struct point point;
 typedef struct point_list_node point_list_node;
 
-// constants
+/* constants */
 #define INPUT_ERR -1
 #define GENERAL_ERR -2
 #define SUCCESS 0
 
-// functions defenition
+/* functions definition */
 point* malloc_point(int);
 void free_point(point*);
 point_list_node* malloc_point_list_node(int dim);
@@ -37,7 +37,7 @@ void free_resources(point**, point_list_node*, int);
 static PyObject* kmeans_to_py(PyObject*, PyObject*);
 
 
-// python module settings
+/* python module settings */
 static PyMethodDef KmeansMethods[] = {
     {"fit",  (PyCFunction)kmeans_to_py, METH_VARARGS,
      PyDoc_STR("Runs the kmeans algorithm.")},
@@ -54,7 +54,7 @@ static struct PyModuleDef mykmeanssp = {
 };
 
 
-// structs
+/* structs */
 struct point{
     double *vector;
     int dim;
@@ -68,14 +68,14 @@ struct point_list_node {
 };
 
 
-// initialize the module
+/* initialize the module */
 PyMODINIT_FUNC PyInit_mykmeanssp(void)
 {
     return PyModule_Create(&mykmeanssp);
 }
 
 
-// the function that python runs
+/* the function that python runs */
 static PyObject* kmeans_to_py(PyObject *self, PyObject *args)
 {
     double eps;
@@ -86,12 +86,12 @@ static PyObject* kmeans_to_py(PyObject *self, PyObject *args)
     int result;
     PyObject* final_centroids;
 
-    // parse arguments from python
+    /* parse arguments from python */
     if (!PyArg_ParseTuple(args, "OOdl", &data_points, &init_centroids, &eps, &max_iter)) {
         return NULL;
     }
 
-    k = PyObject_Length(init_centroids); // number of centroids
+    k = PyObject_Length(init_centroids); /* number of centroids */
     point_list_node *points = NULL;
     point** centroids = NULL;
 
@@ -113,7 +113,7 @@ static PyObject* kmeans_to_py(PyObject *self, PyObject *args)
         Py_RETURN_NONE;
     }
 
-    // creates list to return to python
+    /* creates list to return to python */
     final_centroids = PyList_New(k);
     if (final_centroids == NULL) {
         free_resources(centroids, points, k);
@@ -129,8 +129,8 @@ static PyObject* kmeans_to_py(PyObject *self, PyObject *args)
     return Py_BuildValue("O", final_centroids);
 }
 
-// allocates memory for one point with dim dimentions
-// if an error occures, returns NULL
+/* allocates memory for one point with dim dimentions
+if an error occures, returns NULL */
 point* malloc_point(int dim) {
     point* p = (point*)malloc(sizeof(point));
     if (p != NULL) {
@@ -146,7 +146,7 @@ point* malloc_point(int dim) {
     return p;
 }
 
-// frees point
+/* frees point */
 void free_point(point* p) {
     if (p == NULL){
         return;
@@ -155,8 +155,8 @@ void free_point(point* p) {
     free(p);
 }
 
-// allocates memory for one point list node, including the point itself
-// if an error occures, returns NULL
+/* allocates memory for one point list node, including the point itself
+if an error occures, returns NULL */
 point_list_node* malloc_point_list_node(int dim) {
     point_list_node* pln = (point_list_node*)malloc(sizeof(point_list_node));
     if (pln != NULL) {
@@ -171,7 +171,7 @@ point_list_node* malloc_point_list_node(int dim) {
     return pln;
 }
 
-// frees point list node struct
+/* frees point list node struct */
 void free_point_list_node(point_list_node *points) {
     point_list_node *next;
     while (points != NULL) {
@@ -182,8 +182,8 @@ void free_point_list_node(point_list_node *points) {
     }
 }
 
-// point_data is python list with the coordination of a point
-// this function parse the python list to the c struct point
+/* point_data is python list with the coordination of a point
+this function parse the python list to the c struct point */
 int parse_one_point(PyObject* point_data, point* p) {
     int i;
     PyObject *item;
@@ -197,9 +197,9 @@ int parse_one_point(PyObject* point_data, point* p) {
     return SUCCESS;
 }
 
-// parses all of the data points from python
-// points is a python list of python lists. each list is one point.
-// at the end, head is a pointer to a linked list with all of the points.
+/* parses all of the data points from python
+points is a python list of python lists. each list is one point.
+at the end, head is a pointer to a linked list with all of the points. */
 int parse_data_points(PyObject* points, point_list_node** head){
     int i;
     int dim;
@@ -223,7 +223,7 @@ int parse_data_points(PyObject* points, point_list_node** head){
     }
     next = *head;
 
-    // in each iteration we parse one point and put it on the list
+    /* in each iteration we parse one point and put it on the list */
     for(i=0; i<points_number; i++) {
         my_point = PyList_GetItem(points, i);
         if (my_point == NULL){
@@ -245,8 +245,8 @@ int parse_data_points(PyObject* points, point_list_node** head){
     return SUCCESS;
 }
 
-// parses all of the centroids
-// returns k centroids in the array of points centroids.
+/* parses all of the centroids
+returns k centroids in the array of points centroids. */
 int parse_centroids(PyObject* init_centroids, point*** centroids){
     int result;
     int i;
@@ -268,7 +268,7 @@ int parse_centroids(PyObject* init_centroids, point*** centroids){
     }
     dim = PyObject_Length(first_point);
 
-    // in each iteration we parse one centroid and put it in the array
+    /* in each iteration we parse one centroid and put it in the array */
     for (i=0; i<k; i++) {
         (*centroids)[i] = malloc_point(dim);
         my_centroid = PyList_GetItem(init_centroids, i);
@@ -283,7 +283,7 @@ int parse_centroids(PyObject* init_centroids, point*** centroids){
     return SUCCESS;
 }
 
-// calculates distance between p1 and p2
+/* calculates distance between p1 and p2 */
 double calculate_distance(point* p1, point* p2) {
     double distance = 0;
     int i;
@@ -293,7 +293,7 @@ double calculate_distance(point* p1, point* p2) {
     return sqrt(distance);
 }
 
-// set p->centroid_index to the index of the centroid which is closest to p
+/* set p->centroid_index to the index of the centroid which is closest to p */
 void find_nearest_centroid(point* centroids[], int k, point* p) {
     double min_dist = -1;
     double distance;
@@ -307,7 +307,7 @@ void find_nearest_centroid(point* centroids[], int k, point* p) {
     }
 }
 
-// scanning the list points and set the centroid_index of all of the points
+/* scanning the list points and set the centroid_index of all of the points */
 void find_all_nearest_centroids(point* centroids[], int k, point_list_node* points) {
     while(points != NULL){
         find_nearest_centroid(centroids, k, points->value);
@@ -315,8 +315,8 @@ void find_all_nearest_centroids(point* centroids[], int k, point_list_node* poin
     }
 }
 
-// count the sizes of the groups of the centroids
-// - the number of points which are closest to each centroid.
+/* count the sizes of the groups of the centroids
+- the number of points which are closest to each centroid. */
 void count_group_sizes(point_list_node* points, int* sizes) {
     while (points!=NULL){
         sizes[points->value->centroid_index]++;
@@ -324,8 +324,8 @@ void count_group_sizes(point_list_node* points, int* sizes) {
     }
 }
 
-// calculates the new centroids from the groups of the data points
-// returns the new centroids in the array centroids
+/* calculates the new centroids from the groups of the data points
+returns the new centroids in the array centroids */
 int calc_new_centroids(point_list_node* points, int k, point*** centroids) {
     int i;
     int dim;
@@ -353,7 +353,7 @@ int calc_new_centroids(point_list_node* points, int k, point*** centroids) {
             return GENERAL_ERR;
         }
     }
-    // initialize memory
+    /* initialize memory */
     for(i=0; i<k; i++){
         for(d=0; d<dim; d++) {
             ((*centroids)[i]->vector)[d]=0;
@@ -373,8 +373,8 @@ int calc_new_centroids(point_list_node* points, int k, point*** centroids) {
     return SUCCESS;
 }
 
-// calculates the ditance of each centroid i to the new centroid i
-// and returns the maximum distance
+/* calculates the distance of each centroid i to the new centroid i
+and returns the maximum distance */
 double calc_max_centroid_distance(point* new_centroids[], point* old_centroids[], int k) {
     double max_distance = -1;
     double current_distance;
@@ -388,7 +388,7 @@ double calc_max_centroid_distance(point* new_centroids[], point* old_centroids[]
     return max_distance;
 }
 
-// free the array centroids (with size k)
+/* free the array centroids (with size k) */
 void free_centroids(point* centroids[], int k) {
     int i;
 
@@ -401,8 +401,8 @@ void free_centroids(point* centroids[], int k) {
     free(centroids);
 }
 
-// run kmeans algorithm
-// returns the final centroids in the array centroids
+/* run kmeans algorithm
+returns the final centroids in the array centroids */
 int kmeans(point_list_node* points, int k, int max_iter, double eps, point*** centroids) {
     point** new_centroids = NULL;
     double err;
@@ -425,7 +425,7 @@ int kmeans(point_list_node* points, int k, int max_iter, double eps, point*** ce
     return SUCCESS;
 }
 
-// creates python list of lists that has the centroids
+/* creates python list of lists that has the centroids */
 int output_centroids(PyObject* final_centroids, point* centroids[], int k) {
     int result;
     int i;
@@ -438,8 +438,8 @@ int output_centroids(PyObject* final_centroids, point* centroids[], int k) {
     return SUCCESS;
 }
 
-// creates python list which is the centroid centroid, 
-// and put it in centroids_list as index index.
+/* creates python list which is the centroid centroid, 
+and put it in centroids_list as index index. */
 int add_centroid_to_list(PyObject* centroids_list, point* centroid, int index) {
     int result;
     int d;
@@ -464,7 +464,7 @@ int add_centroid_to_list(PyObject* centroids_list, point* centroid, int index) {
     return SUCCESS;
 }
 
-// free memory of centroids and the linked list of the data points
+/* free memory of centroids and the linked list of the data points */
 void free_resources(point** centroids, point_list_node* points, int k) {
     free_centroids(centroids, k);
     free_point_list_node(points);
