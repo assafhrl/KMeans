@@ -445,7 +445,6 @@ int add_centroid_to_list(PyObject* centroids_list, point* centroid, int index) {
     int d;
     PyObject* myDouble;
     PyObject* this_centroid = PyList_New(centroid->dim);
-    Py_INCREF(this_centroid);
     if (this_centroid == NULL) {
         return GENERAL_ERR;
     }
