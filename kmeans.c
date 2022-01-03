@@ -129,8 +129,8 @@ static PyObject* kmeans_to_py(PyObject *self, PyObject *args)
     return Py_BuildValue("O", final_centroids);
 }
 
-/* allocates memory for one point with dim dimentions
-if an error occures, returns NULL */
+/* allocates memory for one point with dim dimensions
+if an error occurs, returns NULL */
 point* malloc_point(int dim) {
     point* p = (point*)malloc(sizeof(point));
     if (p != NULL) {
@@ -156,7 +156,7 @@ void free_point(point* p) {
 }
 
 /* allocates memory for one point list node, including the point itself
-if an error occures, returns NULL */
+if an error occurs, returns NULL */
 point_list_node* malloc_point_list_node(int dim) {
     point_list_node* pln = (point_list_node*)malloc(sizeof(point_list_node));
     if (pln != NULL) {
